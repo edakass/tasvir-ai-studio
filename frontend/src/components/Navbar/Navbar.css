@@ -1,0 +1,199 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  min-height: 72px;
+  align-items: center;
+  padding: 0 34px;
+  border-bottom: 1px solid rgba(174, 187, 209, 0.13);
+  background: rgba(12, 18, 32, 0.94);
+  box-shadow: 0 10px 34px rgba(4, 8, 18, 0.14);
+  backdrop-filter: blur(20px);
+}
+
+.topbar-logo {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-mark {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 5px 14px rgba(124, 77, 255, 0.2));
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.topbar-logo:hover .logo-mark {
+  transform: translateY(-1px) scale(1.03);
+  filter: drop-shadow(0 7px 18px rgba(124, 77, 255, 0.3));
+}
+
+.logo-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-title {
+  color: #f8fafc;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 2.4px;
+}
+
+.logo-sub {
+  color: #a78bfa;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.logo-divider {
+  color: #667085;
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border-radius: 9px;
+  color: #9ca9bd;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    color 0.18s,
+    background 0.18s;
+}
+
+.nav-item:hover {
+  background: rgba(148, 163, 184, 0.08);
+  color: #e2e8f0;
+}
+
+.nav-item.active {
+  background: rgba(139, 92, 246, 0.17);
+  color: #f8fafc;
+}
+
+.nav-item::after {
+  content: "";
+  position: absolute;
+  right: 13px;
+  bottom: 3px;
+  left: 13px;
+  height: 1px;
+  border-radius: 2px;
+  background: #8f87c9;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+
+.nav-item.active::after {
+  transform: scaleX(1);
+}
+
+.nav-item i {
+  font-size: 15px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.theme-switch,
+.language-switch {
+  display: flex;
+  padding: 3px;
+  border: 1px solid rgba(174, 187, 209, 0.16);
+  border-radius: 8px;
+  background: rgba(21, 30, 52, 0.72);
+}
+
+.theme-switch button,
+.language-switch button {
+  width: 30px;
+  height: 26px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #9ca9bd;
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.theme-switch button {
+  font-size: 14px;
+}
+
+.theme-switch button.active,
+.language-switch button.active {
+  background: rgba(139, 92, 246, 0.24);
+  color: #ddd6fe;
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    position: static;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    padding: 14px 16px 0;
+  }
+
+  .topbar-nav {
+    grid-column: 1 / -1;
+    order: 3;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 0 0 12px;
+    scrollbar-width: none;
+  }
+
+  .topbar-actions {
+    gap: 6px;
+  }
+
+  .topbar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .logo-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .logo-title {
+    font-size: 15px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+  }
+}

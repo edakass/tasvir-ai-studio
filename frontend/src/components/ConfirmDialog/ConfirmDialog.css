@@ -1,0 +1,105 @@
+.confirm-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(2, 6, 23, 0.74);
+  backdrop-filter: blur(8px);
+}
+
+.confirm-dialog {
+  width: min(430px, 100%);
+  padding: 26px;
+  border: 1px solid rgba(251, 113, 133, 0.22);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(251, 113, 133, 0.055), transparent 40%),
+    #11192c;
+  box-shadow: 0 30px 80px rgba(2, 6, 23, 0.58);
+  text-align: center;
+}
+
+.confirm-dialog-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  margin: 0 auto 18px;
+  border: 1px solid rgba(251, 113, 133, 0.22);
+  border-radius: 13px;
+  background: rgba(251, 113, 133, 0.11);
+  color: #fb7185;
+  font-size: 21px;
+}
+
+.confirm-dialog-copy h2 {
+  color: #f8fafc;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+}
+
+.confirm-dialog-copy p {
+  max-width: 330px;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 8px;
+  color: #cbd5e1;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.confirm-dialog-error {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid rgba(251, 113, 133, 0.22);
+  border-radius: 9px;
+  background: rgba(251, 113, 133, 0.08);
+  color: #fda4af;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.confirm-dialog-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.confirm-dialog-actions button {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.confirm-dialog-actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.confirm-dialog-cancel {
+  border: 1px solid rgba(174, 187, 209, 0.2);
+  background: rgba(148, 163, 184, 0.05);
+  color: #cbd5e1;
+}
+
+.confirm-dialog-delete {
+  border: 1px solid rgba(251, 113, 133, 0.28);
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  color: white;
+  box-shadow: 0 10px 24px rgba(190, 18, 60, 0.2);
+}
+
+@media (max-width: 480px) {
+  .confirm-dialog-actions {
+    grid-template-columns: 1fr;
+  }
+}

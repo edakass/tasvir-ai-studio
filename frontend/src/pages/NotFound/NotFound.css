@@ -1,0 +1,157 @@
+.not-found-page {
+  position: relative;
+  display: grid;
+  min-height: calc(100vh - 72px);
+  padding: 48px 24px;
+  overflow: hidden;
+  place-items: center;
+  isolation: isolate;
+}
+
+.not-found-page::before {
+  position: absolute;
+  width: 620px;
+  height: 620px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(111, 82, 173, 0.16), transparent 66%);
+  content: "";
+  filter: blur(12px);
+  z-index: -2;
+}
+
+.not-found-content {
+  position: relative;
+  width: min(680px, 100%);
+  text-align: center;
+  z-index: 1;
+}
+
+.not-found-eyebrow {
+  color: #9188bb;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+.not-found-code {
+  display: block;
+  margin: 18px 0 -18px;
+  background: linear-gradient(180deg, #f8fafc, #766d98 76%);
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(120px, 24vw, 230px);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.09em;
+  opacity: 0.16;
+}
+
+.not-found-content h1 {
+  color: var(--text);
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.04;
+  letter-spacing: -0.055em;
+}
+
+.not-found-content p {
+  max-width: 520px;
+  margin: 20px auto 0;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.not-found-actions {
+  display: flex;
+  margin-top: 30px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.not-found-actions button {
+  display: inline-flex;
+  min-height: 46px;
+  padding: 0 18px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.not-found-actions button:hover {
+  transform: translateY(-2px);
+}
+
+.not-found-primary {
+  border: 1px solid #eeeaff;
+  background: #eeeaff;
+  color: #17142a;
+}
+
+.not-found-secondary {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: var(--surface);
+  color: var(--text-soft);
+}
+
+.not-found-orbit {
+  position: absolute;
+  width: min(760px, 88vw);
+  aspect-ratio: 1;
+  border: 1px solid rgba(148, 163, 184, 0.07);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.not-found-orbit::before,
+.not-found-orbit::after {
+  position: absolute;
+  inset: 15%;
+  border: 1px solid rgba(148, 163, 184, 0.055);
+  border-radius: inherit;
+  content: "";
+}
+
+.not-found-orbit::after {
+  inset: 31%;
+}
+
+.not-found-orbit span {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8b7bc1;
+  box-shadow: 0 0 20px rgba(139, 123, 193, 0.7);
+}
+
+.not-found-orbit span:nth-child(1) {
+  top: 18%;
+  left: 12%;
+}
+
+.not-found-orbit span:nth-child(2) {
+  right: 8%;
+  bottom: 30%;
+}
+
+.not-found-orbit span:nth-child(3) {
+  left: 36%;
+  bottom: 4%;
+}
+
+@media (max-width: 600px) {
+  .not-found-page {
+    min-height: calc(100vh - 64px);
+  }
+
+  .not-found-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
