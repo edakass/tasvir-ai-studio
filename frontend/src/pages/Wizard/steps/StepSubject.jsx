@@ -5,11 +5,6 @@ function StepSubject({ data, update }) {
   return (
     <div className="step-container">
       <h2>{isTurkish ? "Ne oluşturmak istiyorsun?" : "What do you want to create?"}</h2>
-      <p className="step-desc">
-        {isTurkish
-          ? "Projeni ve üretmek istediğin görseli anlat"
-          : "Describe your project and what you want to generate"}
-      </p>
 
       <div className="form-group">
         <label className="form-label">
@@ -42,11 +37,6 @@ function StepSubject({ data, update }) {
           maxLength={4000}
           rows={4}
         />
-        <span className="form-hint">
-          {isTurkish
-            ? "Dilediğin dilde yazabilirsin"
-            : "Describe freely — AI understands any language"}
-        </span>
       </div>
     </div>
   );

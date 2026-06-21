@@ -22,6 +22,12 @@
   --selected-text: #ddd6fe;
   --topbar-bg: rgba(17, 23, 42, 0.88);
   --input-bg: rgba(15, 23, 42, 0.62);
+  --font-overline: 0.625rem;
+  --font-caption: 0.75rem;
+  --font-control: 0.8125rem;
+  --font-body: 0.875rem;
+  --font-card-title: 1rem;
+  --line-body: 1.6;
 }
 
 :root[data-theme="light"] {

@@ -40,7 +40,7 @@
   max-width: 390px;
   margin: 12px 0 0;
   color: #8491a8;
-  font-size: 14px;
+  font-size: var(--font-body);
   line-height: 1.7;
 }
 
@@ -54,7 +54,7 @@
   border-radius: 9px;
   background: rgba(139, 92, 246, 0.14);
   color: #e9e4ff;
-  font-size: 13px;
+  font-size: var(--font-control);
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease;

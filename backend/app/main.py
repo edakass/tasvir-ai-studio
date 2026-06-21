@@ -5,6 +5,7 @@ from app.database import init_db
 from app.routers import categories, content, projects, generate
 
 from dotenv import load_dotenv
+from contextlib import asynccontextmanager
 import os
 from pathlib import Path
 
@@ -14,7 +15,14 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 UPLOADS_DIR = BASE_DIR / "uploads"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
-app = FastAPI(title="Tasvir AI Studio API")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title="Tasvir AI Studio API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,10 +33,6 @@ app.add_middleware(
 )
 
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
-
-@app.on_event("startup")
-def startup():
-    init_db()
 
 app.include_router(categories.router)
 app.include_router(content.router)

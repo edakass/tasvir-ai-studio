@@ -3,8 +3,10 @@ import { API_URL } from "../constants/api";
 
 const BASE = `${API_URL}/api/generate`;
 
-export const generatePrompt = (data) => axios.post(`${BASE}/prompt`, data);
-export const generateImages = (data) => axios.post(`${BASE}/images`, data);
+export const generatePrompt = (data) =>
+  axios.post(`${BASE}/prompt`, data, { timeout: 60_000 });
+export const generateImages = (data) =>
+  axios.post(`${BASE}/images`, data, { timeout: 135_000 });
 export const getProjectImages = (projectId) =>
   axios.get(`${BASE}/images/${projectId}`);
 export const toggleFavorite = (imageId) =>

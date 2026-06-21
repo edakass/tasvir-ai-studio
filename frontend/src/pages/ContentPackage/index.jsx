@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { generateContentPackage } from "../../api/content";
 import { useLanguage } from "../../context/language";
 import tasvirMark from "../../assets/tasvir-mark.svg";
@@ -10,10 +10,12 @@ const OUTPUTS = [
   ["story", "ti-device-mobile", "Story copy", "Story metni"],
   ["advertisement", "ti-ad", "Ad headlines", "Reklam başlıkları"],
   ["product", "ti-package", "Product description", "Ürün açıklaması"],
+  ["carousel", "ti-layout-board-split", "Slide post plan", "Kaydırmalı post planı"],
   ["hashtags", "ti-hash", "Hashtags", "Hashtag"],
   ["cta", "ti-click", "CTA (Call to Action)", "CTA (Eyleme çağrı)"],
-  ["carousel", "ti-layout-board-split", "Slide post plan", "Kaydırmalı post planı"],
 ];
+
+const OUTPUT_ORDER = new Map(OUTPUTS.map(([id], index) => [id, index]));
 
 const TONES = [
   ["friendly", "Friendly", "Samimi"],
@@ -167,6 +169,10 @@ function ContentPackage() {
     ...(loadedPackage?.form || {}),
   }));
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, []);
+
   const text = isTurkish
     ? {
         kicker: "Content Studio",
@@ -174,7 +180,6 @@ function ContentPackage() {
         description:
           "Ürününü veya fikrini yapılandırılmış bir brief'e dönüştür. Tasvir; açıklama, story, reklam metni ve sosyal medya çıktıları için düzenlenebilir bir yayın paketi hazırlar.",
         briefTitle: "Kaynak içerik",
-        briefHint: "Ürünü, hedefi ve bağlamı net bir başlangıç noktasına dönüştür.",
         projectName: "Paket adı",
         projectPlaceholder: "Örn. Yeni sezon tanıtımı",
         productName: "Ürün veya konu *",
@@ -185,28 +190,24 @@ function ContentPackage() {
         audience: "Hedef kitle",
         audiencePlaceholder: "Örn. Ev sahipleri, mimarlar, küçük işletmeler",
         settingsTitle: "Üretim ayarı",
-        settingsHint: "Ton, amaç ve çıktı kapsamını sade tut.",
         tone: "Ton",
         goal: "Amaç",
         length: "Uzunluk",
         language: "Dil",
         outputsTitle: "Çıktılar",
-        outputsHint: "Hızlı başlangıç için temel paket seçili. İstersen reklam, CTA ve kaydırmalı post planı ekleyebilirsin.",
         selectedOutputs: "Seçilen çıktılar",
         selected: "seçili",
         generate: "Paketi oluştur",
         generating: "Hazırlanıyor...",
-        required: "Ürün veya konu ve kısa açıklama gerekli.",
         sample: "Örnek doldur",
         ready: "Paket hazır",
-        resultDescription: "Metinleri düzenleyebilir, tek tek veya topluca kopyalayabilirsin.",
         edit: "Düzenle",
         newPackage: "Yeni paket",
         copy: "Kopyala",
         copied: "Kopyalandı",
         copyAll: "Tümünü kopyala",
         download: "TXT indir",
-        pdf: "PDF hazırla",
+        pdf: "PDF olarak dışa aktar",
         allCopied: "Paket kopyalandı",
         historyTitle: "Son paketler",
         historyHint: "Bu cihazda oluşturulan son içerik paketleri.",
@@ -229,7 +230,6 @@ function ContentPackage() {
         description:
           "Turn a product or idea into a structured brief. Tasvir prepares editable captions, story copy, ad lines, and social content in one polished workspace.",
         briefTitle: "Source content",
-        briefHint: "Turn the product, goal, and context into a clear starting point.",
         projectName: "Package name",
         projectPlaceholder: "e.g. New season launch",
         productName: "Product or topic *",
@@ -240,28 +240,24 @@ function ContentPackage() {
         audience: "Target audience",
         audiencePlaceholder: "e.g. Homeowners, architects, small businesses",
         settingsTitle: "Production setup",
-        settingsHint: "Keep the tone, goal, and output scope simple.",
         tone: "Tone",
         goal: "Goal",
         length: "Length",
         language: "Language",
         outputsTitle: "Outputs",
-        outputsHint: "The starter package is selected for speed. Add ads, CTA, or a slide post plan when needed.",
         selectedOutputs: "Selected outputs",
         selected: "selected",
         generate: "Create package",
         generating: "Preparing...",
-        required: "Product or topic and short description are required.",
         sample: "Fill example",
         ready: "Package ready",
-        resultDescription: "Edit, copy individually, or export the whole package.",
         edit: "Edit",
         newPackage: "New package",
         copy: "Copy",
         copied: "Copied",
         copyAll: "Copy all",
         download: "Download TXT",
-        pdf: "Prepare PDF",
+        pdf: "Export PDF",
         allCopied: "Package copied",
         historyTitle: "Recent packages",
         historyHint: "Content packages created on this device.",
@@ -280,18 +276,24 @@ function ContentPackage() {
 
   const visibleResults = useMemo(
     () =>
-      results.map((result) => {
-        const output = OUTPUTS.find(([id]) => id === result.id);
-        return {
-          ...result,
-          icon: output?.[1] || "ti-file-text",
-          title: output?.[isTurkish ? 3 : 2] || result.id,
-          content: cleanLanguageArtifacts(
-            edits[result.id] ?? result.content,
-            form.language
-          ),
-        };
-      }),
+      results
+        .map((result) => {
+          const output = OUTPUTS.find(([id]) => id === result.id);
+          return {
+            ...result,
+            icon: output?.[1] || "ti-file-text",
+            title: output?.[isTurkish ? 3 : 2] || result.id,
+            content: cleanLanguageArtifacts(
+              edits[result.id] ?? result.content,
+              form.language
+            ),
+          };
+        })
+        .sort(
+          (first, second) =>
+            (OUTPUT_ORDER.get(first.id) ?? 99) -
+            (OUTPUT_ORDER.get(second.id) ?? 99)
+        ),
     [edits, form.language, isTurkish, results]
   );
 
@@ -752,7 +754,6 @@ function ContentPackage() {
             <div className="section-title">
               <div>
                 <h2>{text.briefTitle}</h2>
-                <p>{text.briefHint}</p>
               </div>
               <button onClick={fillExample}>
                 <i className="ti ti-wand" />
@@ -799,7 +800,6 @@ function ContentPackage() {
             <div className="outputs-block">
               <div>
                 <h3>{text.outputsTitle}</h3>
-                <p>{text.outputsHint}</p>
               </div>
               <div className="simple-output-grid">
                 {OUTPUTS.map(([id, icon, en, tr]) => {
@@ -823,11 +823,10 @@ function ContentPackage() {
             <div className="section-title compact">
               <div>
                 <h2>{text.settingsTitle}</h2>
-                <p>{text.settingsHint}</p>
               </div>
             </div>
 
-            <div className="simple-control">
+            <div className="simple-control tone-control">
               <span>{text.tone}</span>
               <div>
                 {TONES.map(([value, en, tr]) => (
@@ -842,7 +841,7 @@ function ContentPackage() {
               </div>
             </div>
 
-            <div className="simple-control">
+            <div className="simple-control goal-control">
               <span>{text.goal}</span>
               <div>
                 {GOALS.map(([value, en, tr]) => (
@@ -899,7 +898,6 @@ function ContentPackage() {
               </button>
             </div>
 
-            {!canGenerate && <small className="required-note">{text.required}</small>}
             {error && (
               <div className="content-generation-error" role="alert">
                 <i className="ti ti-alert-circle" />
@@ -913,61 +911,57 @@ function ContentPackage() {
         <section className="results-section">
           <div className="results-heading">
             <div className="results-title-row">
-              <div>
+              <div className="results-title-copy">
                 <span className="page-kicker">{text.ready}</span>
                 <h2>{packageTitle}</h2>
-                <p>{text.resultDescription}</p>
                 <div className="results-meta-chips">
                   <span>
-                    <strong>{visibleResults.length}</strong>
                     {text.outputsTitle}
+                    <strong>{visibleResults.length}</strong>
                   </span>
                   <span>
-                    <strong>{form.language}</strong>
                     {text.language}
+                    <strong>{form.language}</strong>
                   </span>
                   <span>
+                    {text.tone}
                     <strong>
                       {TONES.find(([value]) => value === form.tone)?.[
                         isTurkish ? 2 : 1
                       ]}
                     </strong>
-                    {text.tone}
                   </span>
                 </div>
               </div>
-              <div className="results-actions">
-                <button className="package-primary" onClick={reset}>
+            </div>
+
+            <div className="results-toolbar">
+              <div className="results-toolbar-primary">
+                <button
+                  className="package-back"
+                  onClick={() => copyText("all", getPackageText())}
+                >
+                  <i className={`ti ${copiedId === "all" ? "ti-check" : "ti-copy"}`} />
+                  {copiedId === "all" ? text.allCopied : text.copyAll}
+                </button>
+                <button className="package-back" onClick={downloadPackage}>
+                  <i className="ti ti-download" />
+                  {text.download}
+                </button>
+                <button className="package-back" onClick={exportPdf}>
+                  <i className="ti ti-file-type-pdf" />
+                  {text.pdf}
+                </button>
+              </div>
+              <div className="results-toolbar-secondary">
+                <Link to="/content-package/history" className="results-history-link">
+                  <i className="ti ti-history" />
+                  {text.historyTitle}
+                </Link>
+                <button className="package-primary results-new-button" onClick={reset}>
                   <i className="ti ti-plus" />
                   {text.newPackage}
                 </button>
-                <div className="results-action-group">
-                  <button
-                    className="package-back"
-                    onClick={() => copyText("all", getPackageText())}
-                  >
-                    <i className={`ti ${copiedId === "all" ? "ti-check" : "ti-copy"}`} />
-                    {copiedId === "all" ? text.allCopied : text.copyAll}
-                  </button>
-                  <button className="package-back" onClick={downloadPackage}>
-                    <i className="ti ti-download" />
-                    {text.download}
-                  </button>
-                  <button className="package-back" onClick={exportPdf}>
-                    <i className="ti ti-file-type-pdf" />
-                    {text.pdf}
-                  </button>
-                </div>
-                <div className="results-action-group compact">
-                  <button className="package-back" onClick={reset}>
-                    <i className="ti ti-pencil" />
-                    {text.edit}
-                  </button>
-                  <Link to="/content-package/history" className="package-back">
-                    <i className="ti ti-history" />
-                    {text.historyTitle}
-                  </Link>
-                </div>
               </div>
             </div>
           </div>
@@ -980,7 +974,9 @@ function ContentPackage() {
           )}
 
           <div className="result-layout">
-            <div className={`result-grid result-count-${visibleResults.length}`}>
+            <div
+              className={`content-package-result-grid result-count-${visibleResults.length}`}
+            >
             {visibleResults.map((result) => (
               <article
                 className={`content-result-card ${

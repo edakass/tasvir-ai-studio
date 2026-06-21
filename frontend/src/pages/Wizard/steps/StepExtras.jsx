@@ -4,19 +4,15 @@ function StepExtras({ data, update }) {
   const { isTurkish } = useLanguage();
   return (
     <div className="step-container">
-      <h2>{isTurkish ? "Ek notlar" : "Additional notes"}</h2>
-      <p className="step-desc">
-        {isTurkish
-          ? "Sahnede görmek istediğin ek detaylar (isteğe bağlı)"
-          : "Any extra details you want in the scene (optional)"}
-      </p>
+      <div className="step-title-row">
+        <h2>{isTurkish ? "Ek notlar" : "Additional notes"}</h2>
+        <span>{isTurkish ? "İsteğe bağlı" : "Optional"}</span>
+      </div>
 
       <div className="form-group">
-        <label className="form-label">
-          {isTurkish ? "Ek notlar" : "Extra notes"}
-        </label>
         <textarea
           className="prompt-textarea"
+          aria-label={isTurkish ? "Ek notlar" : "Additional notes"}
           placeholder={
             isTurkish
               ? "Örn. Bitkiler, sıcak ışık ve ahşap zemin ekle..."
@@ -29,11 +25,6 @@ function StepExtras({ data, update }) {
           maxLength={2000}
           rows={5}
         />
-        <span className="form-hint">
-          {isTurkish
-            ? "İsteğe bağlı — atlamak için boş bırak"
-            : "Optional — leave empty to skip"}
-        </span>
       </div>
     </div>
   );

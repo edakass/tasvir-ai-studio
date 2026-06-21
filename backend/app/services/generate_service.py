@@ -282,10 +282,15 @@ def get_image_file(image_id: int) -> tuple[str, str]:
         raise HTTPException(status_code=500, detail="Database connection failed")
 
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT image_path FROM generated_images WHERE id = %s", (image_id,))
-    image = cursor.fetchone()
-    cursor.close()
-    conn.close()
+    try:
+        cursor.execute(
+            "SELECT image_path FROM generated_images WHERE id = %s",
+            (image_id,)
+        )
+        image = cursor.fetchone()
+    finally:
+        cursor.close()
+        conn.close()
 
     if not image or not image["image_path"]:
         raise HTTPException(status_code=404, detail="Image not found")
@@ -303,21 +308,26 @@ def toggle_favorite(image_id: int):
         raise HTTPException(status_code=500, detail="Database connection failed")
 
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM generated_images WHERE id = %s", (image_id,))
-    image = cursor.fetchone()
+    try:
+        cursor.execute("SELECT * FROM generated_images WHERE id = %s", (image_id,))
+        image = cursor.fetchone()
 
-    if not image:
-        raise HTTPException(status_code=404, detail="Image not found")
+        if not image:
+            raise HTTPException(status_code=404, detail="Image not found")
 
-    new_status = not image["is_favorite"]
-    cursor.execute(
-        "UPDATE generated_images SET is_favorite = %s WHERE id = %s",
-        (new_status, image_id)
-    )
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return {"is_favorite": new_status}
+        new_status = not image["is_favorite"]
+        cursor.execute(
+            "UPDATE generated_images SET is_favorite = %s WHERE id = %s",
+            (new_status, image_id)
+        )
+        conn.commit()
+        return {"is_favorite": new_status}
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cursor.close()
+        conn.close()
 
 
 def toggle_archive(image_id: int):
@@ -326,21 +336,26 @@ def toggle_archive(image_id: int):
         raise HTTPException(status_code=500, detail="Database connection failed")
 
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM generated_images WHERE id = %s", (image_id,))
-    image = cursor.fetchone()
+    try:
+        cursor.execute("SELECT * FROM generated_images WHERE id = %s", (image_id,))
+        image = cursor.fetchone()
 
-    if not image:
-        raise HTTPException(status_code=404, detail="Image not found")
+        if not image:
+            raise HTTPException(status_code=404, detail="Image not found")
 
-    new_status = not image["is_archived"]
-    cursor.execute(
-        "UPDATE generated_images SET is_archived = %s WHERE id = %s",
-        (new_status, image_id)
-    )
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return {"is_archived": new_status}
+        new_status = not image["is_archived"]
+        cursor.execute(
+            "UPDATE generated_images SET is_archived = %s WHERE id = %s",
+            (new_status, image_id)
+        )
+        conn.commit()
+        return {"is_archived": new_status}
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cursor.close()
+        conn.close()
 
 
 def get_project_images(project_id: int):
@@ -349,14 +364,15 @@ def get_project_images(project_id: int):
         raise HTTPException(status_code=500, detail="Database connection failed")
 
     cursor = conn.cursor(dictionary=True)
-    cursor.execute(
-        "SELECT * FROM generated_images WHERE project_id = %s ORDER BY created_at DESC",
-        (project_id,)
-    )
-    images = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return images
+    try:
+        cursor.execute(
+            "SELECT * FROM generated_images WHERE project_id = %s ORDER BY created_at DESC",
+            (project_id,)
+        )
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
 
 
 def delete_image(image_id: int):
@@ -365,15 +381,18 @@ def delete_image(image_id: int):
         raise HTTPException(status_code=500, detail="Database connection failed")
 
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM generated_images WHERE id = %s", (image_id,))
-    image = cursor.fetchone()
-
-    if not image:
-        raise HTTPException(status_code=404, detail="Image not found")
-
     try:
+        cursor.execute("SELECT * FROM generated_images WHERE id = %s", (image_id,))
+        image = cursor.fetchone()
+
+        if not image:
+            raise HTTPException(status_code=404, detail="Image not found")
+
         cursor.execute("DELETE FROM generated_images WHERE id = %s", (image_id,))
         conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         cursor.close()
         conn.close()

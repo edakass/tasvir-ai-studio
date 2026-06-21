@@ -18,7 +18,7 @@
 }
 
 .page-topbar p {
-  font-size: 14px;
+  font-size: var(--font-body);
   color: var(--text-muted);
   margin-top: 4px;
 }
@@ -29,7 +29,7 @@
   border: none;
   padding: 10px 20px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--font-control);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
@@ -104,14 +104,14 @@
 }
 
 .cat-name {
-  font-size: 15px;
+  font-size: var(--font-card-title);
   font-weight: 600;
   color: var(--text);
   margin-bottom: 6px;
 }
 
 .cat-desc {
-  font-size: 12px;
+  font-size: var(--font-body);
   color: var(--text-muted);
   margin-bottom: 14px;
   line-height: 1.5;
@@ -125,7 +125,7 @@
 }
 
 .cat-date {
-  font-size: 11px;
+  font-size: var(--font-caption);
   color: var(--text-muted);
 }
 
@@ -160,7 +160,7 @@
 }
 
 .new-cat-text {
-  font-size: 13px;
+  font-size: var(--font-control);
   color: var(--text-soft);
   font-weight: 700;
 }
@@ -201,7 +201,7 @@
 }
 
 .form-label {
-  font-size: 11px;
+  font-size: var(--font-caption);
   font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 6px;
@@ -218,7 +218,7 @@
   border-radius: 9px;
   padding: 11px 14px;
   color: var(--text);
-  font-size: 14px;
+  font-size: var(--font-body);
   outline: none;
   transition:
     border-color 0.2s,
@@ -280,7 +280,7 @@
 }
 
 .emoji-change-text {
-  font-size: 13px;
+  font-size: var(--font-control);
   color: #7070a0;
 }
 
@@ -304,7 +304,7 @@ emoji-picker {
   --input-border-radius: 8px;
   --input-font-color: #ffffff;
   --input-placeholder-color: #7070a0;
-  --input-font-size: 14px;
+  --input-font-size: var(--font-body);
   --category-font-color: #7070a0;
   --button-hover-background: #2a2a45;
   --button-active-background: #1a1035;
@@ -332,7 +332,7 @@ emoji-picker {
   border-radius: 8px;
   background: rgba(127, 29, 29, 0.16);
   color: #fca5a5;
-  font-size: 12px;
+  font-size: var(--font-caption);
   line-height: 1.5;
 }
 
@@ -359,7 +359,7 @@ emoji-picker {
   color: var(--text-muted);
   padding: 9px 18px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--font-control);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -372,7 +372,7 @@ emoji-picker {
 .loading {
   padding: 32px;
   color: #7070a0;
-  font-size: 14px;
+  font-size: var(--font-body);
 }
 
 .emoji-selector {
@@ -402,7 +402,7 @@ emoji-picker {
 }
 
 .emoji-change-text {
-  font-size: 13px;
+  font-size: var(--font-control);
   color: var(--text-muted);
 }
 

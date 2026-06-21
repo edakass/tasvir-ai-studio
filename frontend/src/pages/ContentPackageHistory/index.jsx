@@ -1,15 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useLanguage } from "../../context/language";
 import "./ContentPackageHistory.css";
 
 const CONTENT_HISTORY_KEY = "tasvir-content-history";
+const PACKAGES_PER_PAGE = 5;
 
 function ContentPackageHistory() {
   const navigate = useNavigate();
   const { isTurkish } = useLanguage();
   const [pendingDelete, setPendingDelete] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [history, setHistory] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem(CONTENT_HISTORY_KEY) || "[]");
@@ -22,8 +25,6 @@ function ContentPackageHistory() {
   const text = isTurkish
     ? {
         title: "Son içerik paketleri",
-        description:
-          "Bu cihazda oluşturduğun paketleri tekrar açabilir, düzenleyebilir veya silebilirsin.",
         back: "Content Studio'ya dön",
         open: "Aç",
         delete: "Sil",
@@ -39,11 +40,17 @@ function ContentPackageHistory() {
           "Bir içerik paketi oluşturduğunda burada görünecek.",
         outputs: "çıktı",
         unknown: "İsimsiz paket",
+        search: "Paketlerde ara",
+        searchPlaceholder: "Paket veya ürün adı ara...",
+        noResultsTitle: "Aramana uygun paket bulunamadı",
+        noResultsDescription: "Farklı bir paket veya ürün adıyla tekrar dene.",
+        clearSearch: "Aramayı temizle",
+        previous: "Önceki",
+        next: "Sonraki",
+        page: "Sayfa",
       }
     : {
         title: "Recent content packages",
-        description:
-          "Reopen, edit, or remove the content packages created on this device.",
         back: "Back to Content Studio",
         open: "Open",
         delete: "Delete",
@@ -59,7 +66,38 @@ function ContentPackageHistory() {
           "Packages you create will appear here.",
         outputs: "outputs",
         unknown: "Untitled package",
+        search: "Search packages",
+        searchPlaceholder: "Search by package or product name...",
+        noResultsTitle: "No packages match your search",
+        noResultsDescription: "Try another package or product name.",
+        clearSearch: "Clear search",
+        previous: "Previous",
+        next: "Next",
+        page: "Page",
       };
+
+  const filteredHistory = useMemo(() => {
+    const query = searchQuery.trim().toLocaleLowerCase(isTurkish ? "tr-TR" : "en-US");
+    if (!query) return history;
+
+    return history.filter((item) =>
+      [item.title, item.productName]
+        .filter(Boolean)
+        .some((value) =>
+          value.toLocaleLowerCase(isTurkish ? "tr-TR" : "en-US").includes(query)
+        )
+    );
+  }, [history, isTurkish, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / PACKAGES_PER_PAGE));
+  const paginatedHistory = filteredHistory.slice(
+    (currentPage - 1) * PACKAGES_PER_PAGE,
+    currentPage * PACKAGES_PER_PAGE
+  );
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
 
   const deleteItem = (id) => {
     setHistory((current) => {
@@ -84,26 +122,65 @@ function ContentPackageHistory() {
   return (
     <div className="content-history-page">
       <header className="history-page-hero">
-        <div>
+        <div className="history-hero-copy">
           <h1>{text.title}</h1>
-          <p>{text.description}</p>
+          {history.length > 0 && (
+            <section className="history-controls" aria-label={text.search}>
+              <label className="history-search">
+                <i className="ti ti-search" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => {
+                    setSearchQuery(event.target.value);
+                    setCurrentPage(1);
+                  }}
+                  placeholder={text.searchPlaceholder}
+                  aria-label={text.search}
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setCurrentPage(1);
+                    }}
+                    aria-label={text.clearSearch}
+                  >
+                    <i className="ti ti-x" />
+                  </button>
+                )}
+              </label>
+            </section>
+          )}
         </div>
-        <Link to="/content-package" className="package-back">
-          <i className="ti ti-arrow-left" />
-          {text.back}
-        </Link>
+        <div className="history-hero-aside">
+          <Link to="/content-package" className="package-back">
+            <i className="ti ti-arrow-left" />
+            {text.back}
+          </Link>
+          <section className="history-overview" aria-label={text.title}>
+            <div className="history-overview-item">
+              <span className="history-overview-icon" aria-hidden="true">
+                <i className="ti ti-folders" />
+              </span>
+              <div>
+                <span>{text.totalPackages}</span>
+                <strong>{history.length}</strong>
+              </div>
+            </div>
+            <div className="history-overview-item">
+              <span className="history-overview-icon" aria-hidden="true">
+                <i className="ti ti-clock" />
+              </span>
+              <div>
+                <span>{text.latestPackage}</span>
+                <strong>{latestDate}</strong>
+              </div>
+            </div>
+          </section>
+        </div>
       </header>
-
-      <section className="history-overview" aria-label={text.title}>
-        <div>
-          <span>{text.totalPackages}</span>
-          <strong>{history.length}</strong>
-        </div>
-        <div>
-          <span>{text.latestPackage}</span>
-          <strong>{latestDate}</strong>
-        </div>
-      </section>
 
       {history.length === 0 ? (
         <section className="history-empty-state">
@@ -117,9 +194,27 @@ function ContentPackageHistory() {
             {text.back}
           </Link>
         </section>
+      ) : filteredHistory.length === 0 ? (
+        <section className="history-empty-state history-no-results">
+          <span>
+            <i className="ti ti-search-off" />
+          </span>
+          <h2>{text.noResultsTitle}</h2>
+          <p>{text.noResultsDescription}</p>
+          <button
+            className="package-back"
+            onClick={() => {
+              setSearchQuery("");
+              setCurrentPage(1);
+            }}
+          >
+            {text.clearSearch}
+          </button>
+        </section>
       ) : (
+        <>
         <section className="history-page-list">
-          {history.map((item) => {
+          {paginatedHistory.map((item) => {
             const outputCount = Array.isArray(item.results) ? item.results.length : 0;
             const firstResult = Array.isArray(item.results) ? item.results[0]?.content : "";
             const createdAt = item.createdAt
@@ -143,9 +238,9 @@ function ContentPackageHistory() {
                 {firstResult && <p className="history-package-preview">{firstResult}</p>}
                 <div className="history-package-bottom">
                   <div className="history-package-meta">
-                    <span>{createdAt}</span>
-                    <span>{outputCount} {text.outputs}</span>
                     {item.form?.language && <span>{item.form.language}</span>}
+                    <span>{outputCount} {text.outputs}</span>
+                    <span>{createdAt}</span>
                   </div>
                   <div className="history-package-actions">
                     <button onClick={() => openItem(item)}>
@@ -162,6 +257,41 @@ function ContentPackageHistory() {
             );
           })}
         </section>
+
+        {totalPages > 1 && (
+          <nav className="history-pagination" aria-label={text.page}>
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((page) => page - 1)}
+            >
+              <i className="ti ti-chevron-left" />
+              {text.previous}
+            </button>
+            <div>
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    className={page === currentPage ? "active" : ""}
+                    onClick={() => setCurrentPage(page)}
+                    aria-label={`${text.page} ${page}`}
+                    aria-current={page === currentPage ? "page" : undefined}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+            </div>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((page) => page + 1)}
+            >
+              {text.next}
+              <i className="ti ti-chevron-right" />
+            </button>
+          </nav>
+        )}
+        </>
       )}
 
       {pendingDelete && (

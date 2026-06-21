@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getProjectById } from "../../api/projects";
 import {
   getProjectImages,
@@ -97,6 +97,7 @@ function ProjectDetail() {
       };
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [project, setProject] = useState(null);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -232,6 +233,12 @@ function ProjectDetail() {
   const [imageWidth, imageHeight] = getFormatDimensions(project.format);
   const getActualDimensions = (imageId) =>
     imageDimensions[imageId] || [imageWidth, imageHeight];
+  const imageFilter = location.state?.imageFilter;
+  const visibleImages = images.filter((image) => {
+    if (imageFilter === "favorites") return image.is_favorite;
+    if (imageFilter === "archived") return image.is_archived;
+    return true;
+  });
 
   return (
     <div className="project-detail">
@@ -287,12 +294,12 @@ function ProjectDetail() {
       )}
 
       <div className="project-images-grid">
-        {images.length === 0 ? (
+        {visibleImages.length === 0 ? (
           <div className="empty">
             <div className="empty-text">{text.noImages}</div>
           </div>
         ) : (
-          images.map((image) => (
+          visibleImages.map((image) => (
             <div key={image.id} className="project-image-card">
               <div
                 className="project-image-wrapper"

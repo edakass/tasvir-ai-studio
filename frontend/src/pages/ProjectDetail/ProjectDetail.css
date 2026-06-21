@@ -31,7 +31,7 @@
 }
 
 .project-prompt-label {
-  font-size: 0.75rem;
+  font-size: var(--font-caption);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -40,9 +40,9 @@
 }
 
 .project-prompt-box p {
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   color: var(--text-muted);
-  line-height: 1.6;
+  line-height: var(--line-body);
 }
 
 .project-action-error {
@@ -55,7 +55,7 @@
   border-radius: 10px;
   background: rgba(127, 29, 29, 0.16);
   color: #fca5a5;
-  font-size: 0.82rem;
+  font-size: var(--font-control);
 }
 
 .project-action-error span {
@@ -171,12 +171,12 @@
   gap: 12px;
   padding: 0.7rem 0.75rem 0;
   color: var(--text-muted);
-  font-size: 0.68rem;
+  font-size: var(--font-caption);
 }
 
 .project-image-format strong {
   color: var(--text-soft);
-  font-size: 0.68rem;
+  font-size: var(--font-caption);
 }
 
 @media (max-width: 620px) {
@@ -197,7 +197,7 @@
   color: var(--text-soft);
   padding: 0.5rem;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: var(--font-control);
   display: flex;
   align-items: center;
   justify-content: center;

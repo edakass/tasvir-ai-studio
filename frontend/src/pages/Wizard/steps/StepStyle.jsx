@@ -5,11 +5,6 @@ function StepStyle({ data, update }) {
   return (
     <div className="step-container">
       <h2>{isTurkish ? "Stil" : "Style"}</h2>
-      <p className="step-desc">
-        {isTurkish
-          ? "İstediğin görsel stilini anlat"
-          : "Describe the visual style you want"}
-      </p>
 
       <div className="form-group">
         <label className="form-label">

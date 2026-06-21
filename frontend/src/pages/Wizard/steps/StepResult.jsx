@@ -71,7 +71,12 @@ function StepResult({
       if (!Array.isArray(res.data) || res.data.length === 0) {
         throw new Error("Image service returned no images");
       }
-      setImages(res.data);
+      setImages((current) => [
+        ...res.data,
+        ...current.filter(
+          (image) => !res.data.some((newImage) => newImage.id === image.id)
+        ),
+      ]);
     } catch (err) {
       console.error(err);
       setRegenerateError(

@@ -214,12 +214,23 @@ function CategoryDetail() {
         <div className="projects-grid">
           {filteredProjects.map((project) => {
             const images = projectImages[project.id] || [];
-            const firstImage = images[0];
+            const visibleImages = images.filter((image) => {
+              if (activeTab === "favorites") return image.is_favorite;
+              if (activeTab === "archived") return image.is_archived;
+              return true;
+            });
+            const firstImage = visibleImages[0];
             return (
               <div
                 key={project.id}
                 className="project-card"
-                onClick={() => navigate(`/project/${project.id}`)}
+                onClick={() =>
+                  navigate(`/project/${project.id}`, {
+                    state: {
+                      imageFilter: activeTab === "all" ? null : activeTab,
+                    },
+                  })
+                }
               >
                 <div className="project-thumb">
                   {firstImage ? (
@@ -258,7 +269,7 @@ function CategoryDetail() {
                       {new Date(project.created_at).toLocaleDateString()}
                     </span>
                     <span className="project-imgs">
-                      {images.length} {text.images}
+                      {visibleImages.length} {text.images}
                     </span>
                   </div>
                 </div>

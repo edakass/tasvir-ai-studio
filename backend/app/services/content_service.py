@@ -18,9 +18,9 @@ CONTENT_FIELDS = (
     "story",
     "advertisement",
     "product",
+    "carousel",
     "hashtags",
     "cta",
-    "carousel",
 )
 
 TONE_LABELS = {
@@ -46,13 +46,36 @@ LENGTH_LABELS = {
 
 OUTPUT_REQUIREMENTS = {
     "instagram": "For instagram, write the final caption with natural paragraph breaks.",
-    "story": "For story, write final copy for a concise three-screen story sequence.",
-    "advertisement": "For advertisement, write three distinct ad headlines, one per line.",
     "product": "For product, write the final product description based only on supplied facts.",
     "hashtags": "For hashtags, write actual relevant hashtags on one line, each starting with #.",
     "cta": "For cta, write one concise call to action aligned with the primary goal.",
-    "carousel": "For carousel, write a cover, five content slides, and a final CTA slide.",
 }
+
+
+def _env_count(name: str, default: int, maximum: int = 20) -> int:
+    try:
+        value = int(os.getenv(name, str(default)))
+    except ValueError:
+        logger.warning("Invalid %s value; using default %s", name, default)
+        return default
+
+    if not 1 <= value <= maximum:
+        logger.warning("%s must be between 1 and %s; using default %s", name, maximum, default)
+        return default
+    return value
+
+
+def _output_requirement(field: str) -> str:
+    if field == "story":
+        count = _env_count("CONTENT_STORY_SCREEN_COUNT", 3)
+        return f"For story, write final copy for a concise {count}-screen story sequence."
+    if field == "advertisement":
+        count = _env_count("CONTENT_AD_HEADLINE_COUNT", 3)
+        return f"For advertisement, write {count} distinct ad headlines, one per line."
+    if field == "carousel":
+        count = _env_count("CONTENT_CAROUSEL_CONTENT_SLIDE_COUNT", 5)
+        return f"For carousel, write a cover, {count} content slides, and a final CTA slide."
+    return OUTPUT_REQUIREMENTS[field]
 
 
 def _required_text(value: str | None, field_name: str) -> str:
@@ -75,7 +98,7 @@ def build_content_prompt(request: ContentPackageRequest) -> str:
         if request.include_carousel or field != "carousel"
     ]
     output_requirements = "\n".join(
-        f"- {OUTPUT_REQUIREMENTS[field]}"
+        f"- {_output_requirement(field)}"
         for field in selected_outputs
     )
     json_keys = ", ".join(selected_outputs)

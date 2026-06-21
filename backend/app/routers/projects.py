@@ -12,13 +12,13 @@ router = APIRouter(
 def get_projects():
     return project_service.get_all_projects()
 
-@router.get("/{project_id}", response_model=ProjectResponse)
-def get_project(project_id: int):
-    return project_service.get_project_by_id(project_id)
-
 @router.get("/category/{category_id}", response_model=List[ProjectResponse])
 def get_projects_by_category(category_id: int):
     return project_service.get_projects_by_category(category_id)
+
+@router.get("/{project_id}", response_model=ProjectResponse)
+def get_project(project_id: int):
+    return project_service.get_project_by_id(project_id)
 
 @router.post("/", response_model=ProjectResponse)
 def create_project(project: ProjectCreate):
