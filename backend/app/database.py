@@ -88,6 +88,36 @@ def init_db():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS content_packages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            project_name VARCHAR(255),
+            product_name VARCHAR(255),
+            description TEXT,
+            audience TEXT,
+            tone VARCHAR(50) NOT NULL,
+            goal VARCHAR(50) NOT NULL,
+            output_language VARCHAR(10) NOT NULL,
+            content_length VARCHAR(50) NOT NULL,
+            selected_outputs TEXT NOT NULL,
+            model VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS content_package_results (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            package_id INT NOT NULL,
+            output_id VARCHAR(50) NOT NULL,
+            content TEXT NOT NULL,
+            sort_order INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (package_id) REFERENCES content_packages(id) ON DELETE CASCADE
+        )
+    """)
+
     cursor.execute("SHOW COLUMNS FROM projects")
     project_columns = {column[0] for column in cursor.fetchall()}
 

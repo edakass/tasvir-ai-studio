@@ -155,6 +155,10 @@ class ContentResult(BaseModel):
     content: str = Field(min_length=1, max_length=8000)
 
 
+class ContentResultUpdate(BaseModel):
+    content: str = Field(min_length=1, max_length=8000)
+
+
 class ContentPackageResponse(BaseModel):
     model: str
     results: list[ContentResult]

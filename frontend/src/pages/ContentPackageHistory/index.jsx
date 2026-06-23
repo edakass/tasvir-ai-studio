@@ -1,10 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import { deleteContentPackage, getContentPackages } from "../../api/content";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useLanguage } from "../../context/language";
 import "./ContentPackageHistory.css";
 
-const CONTENT_HISTORY_KEY = "tasvir-content-history";
 const PACKAGES_PER_PAGE = 5;
 
 function ContentPackageHistory() {
@@ -13,14 +13,7 @@ function ContentPackageHistory() {
   const [pendingDelete, setPendingDelete] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [history, setHistory] = useState(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem(CONTENT_HISTORY_KEY) || "[]");
-      return Array.isArray(stored) ? stored : [];
-    } catch {
-      return [];
-    }
-  });
+  const [history, setHistory] = useState([]);
 
   const text = isTurkish
     ? {
@@ -88,22 +81,38 @@ function ContentPackageHistory() {
   }, [history, isTurkish, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(filteredHistory.length / PACKAGES_PER_PAGE));
+  const activePage = Math.min(currentPage, totalPages);
   const paginatedHistory = filteredHistory.slice(
-    (currentPage - 1) * PACKAGES_PER_PAGE,
-    currentPage * PACKAGES_PER_PAGE
+    (activePage - 1) * PACKAGES_PER_PAGE,
+    activePage * PACKAGES_PER_PAGE
   );
 
   useEffect(() => {
-    setCurrentPage((page) => Math.min(page, totalPages));
-  }, [totalPages]);
+    let active = true;
 
-  const deleteItem = (id) => {
-    setHistory((current) => {
-      const next = current.filter((item) => item.id !== id);
-      localStorage.setItem(CONTENT_HISTORY_KEY, JSON.stringify(next));
-      return next;
-    });
-    setPendingDelete(null);
+    getContentPackages()
+      .then((response) => {
+        if (active && Array.isArray(response.data)) {
+          setHistory(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const deleteItem = async (id) => {
+    try {
+      await deleteContentPackage(id);
+      setHistory((current) => current.filter((item) => item.id !== id));
+      setPendingDelete(null);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const openItem = (item) => {
@@ -259,8 +268,8 @@ function ContentPackageHistory() {
         {totalPages > 1 && (
           <nav className="history-pagination" aria-label={text.page}>
             <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((page) => page - 1)}
+              disabled={activePage === 1}
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
             >
               <i className="ti ti-chevron-left" />
               {text.previous}
@@ -270,10 +279,10 @@ function ContentPackageHistory() {
                 (page) => (
                   <button
                     key={page}
-                    className={page === currentPage ? "active" : ""}
+                    className={page === activePage ? "active" : ""}
                     onClick={() => setCurrentPage(page)}
                     aria-label={`${text.page} ${page}`}
-                    aria-current={page === currentPage ? "page" : undefined}
+                    aria-current={page === activePage ? "page" : undefined}
                   >
                     {page}
                   </button>
@@ -281,8 +290,8 @@ function ContentPackageHistory() {
               )}
             </div>
             <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((page) => page + 1)}
+              disabled={activePage === totalPages}
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
             >
               {text.next}
               <i className="ti ti-chevron-right" />

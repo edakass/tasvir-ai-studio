@@ -1,6 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { generateContentPackage } from "../../api/content";
+import {
+  generateContentPackage,
+  getContentPackages,
+  updateContentPackageResult,
+} from "../../api/content";
 import { useLanguage } from "../../context/language";
 import tasvirMark from "../../assets/tasvir-mark.svg";
 import "./ContentPackage.css";
@@ -43,8 +47,6 @@ const LANGUAGES = [
   ["English", "English", "English"],
 ];
 
-const CONTENT_HISTORY_KEY = "tasvir-content-history";
-const MAX_HISTORY_ITEMS = 12;
 const CJK_TEXT_RE = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]+/g;
 
 function cleanLanguageArtifacts(value, selectedLanguage) {
@@ -147,15 +149,9 @@ function ContentPackage() {
   const [results, setResults] = useState(() =>
     Array.isArray(loadedPackage?.results) ? loadedPackage.results : []
   );
+  const [currentPackageId, setCurrentPackageId] = useState(loadedPackage?.id || "");
   const [edits, setEdits] = useState({});
-  const [history, setHistory] = useState(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem(CONTENT_HISTORY_KEY) || "[]");
-      return Array.isArray(stored) ? stored : [];
-    } catch {
-      return [];
-    }
-  });
+  const [history, setHistory] = useState([]);
   const [form, setForm] = useState(() => ({
     projectName: "",
     productName: "",
@@ -171,6 +167,24 @@ function ContentPackage() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    getContentPackages()
+      .then((response) => {
+        if (active && Array.isArray(response.data)) {
+          setHistory(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const text = isTurkish
@@ -300,17 +314,6 @@ function ContentPackage() {
   const canGenerate = form.productName.trim() && form.description.trim();
   const packageTitle = getLocalizedPackageTitle(form, text, isTurkish);
 
-  const saveHistory = (nextItem) => {
-    setHistory((current) => {
-      const next = [
-        nextItem,
-        ...current.filter((item) => item.id !== nextItem.id),
-      ].slice(0, MAX_HISTORY_ITEMS);
-      localStorage.setItem(CONTENT_HISTORY_KEY, JSON.stringify(next));
-      return next;
-    });
-  };
-
   const update = (field, value) => {
     setError("");
     setForm((current) => ({ ...current, [field]: value }));
@@ -388,6 +391,26 @@ function ContentPackage() {
       console.error(error);
       setCopiedId("");
       setCopyError(id);
+    }
+  };
+
+  const saveEditedResult = async (id, content) => {
+    if (!currentPackageId) return;
+
+    try {
+      await updateContentPackageResult(currentPackageId, id, content);
+      setResults((current) =>
+        current.map((result) =>
+          result.id === id ? { ...result, content } : result
+        )
+      );
+      setEdits((current) => {
+        const next = { ...current };
+        delete next[id];
+        return next;
+      });
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -705,15 +728,16 @@ function ContentPackage() {
       }
 
       setResults(response.data.results);
+      setCurrentPackageId(response.data?.id || "");
       setEdits({});
-      saveHistory({
-        id: `${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        title: form.projectName || form.productName || text.fallbackTitle,
-        productName: form.productName,
-        form,
-        results: response.data.results,
-      });
+      setHistory((current) =>
+        response.data?.id
+          ? [
+              response.data,
+              ...current.filter((item) => item.id !== response.data.id),
+            ]
+          : current
+      );
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       console.error(error);
@@ -729,6 +753,7 @@ function ContentPackage() {
 
   const reset = () => {
     setResults([]);
+    setCurrentPackageId("");
     setEdits({});
     setError("");
     setCopyError("");
@@ -1003,6 +1028,9 @@ function ContentPackage() {
                       ...current,
                       [result.id]: event.target.value,
                     }))
+                  }
+                  onBlur={(event) =>
+                    saveEditedResult(result.id, event.target.value)
                   }
                   rows={result.id === "carousel" ? 7 : 5}
                 />

@@ -7,7 +7,8 @@ import requests
 from fastapi import HTTPException
 from pydantic import ValidationError
 
-from app.models import ContentPackageRequest, ContentPackageResponse, ContentResult
+from app.database import get_connection
+from app.models import ContentPackageRequest, ContentResult
 
 logger = logging.getLogger(__name__)
 
@@ -174,7 +175,7 @@ def _clean_language_artifacts(value: str, output_language: str) -> str:
     return re.sub(r"[ \t]{2,}", " ", cleaned).strip()
 
 
-def generate_content_package(request: ContentPackageRequest) -> ContentPackageResponse:
+def generate_content_package(request: ContentPackageRequest) -> dict:
     base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
     model = os.getenv("OLLAMA_MODEL", "qwen3:4b").strip()
 
@@ -278,4 +279,243 @@ def generate_content_package(request: ContentPackageRequest) -> ContentPackageRe
             detail="The local model returned an invalid content package.",
         ) from error
 
-    return ContentPackageResponse(model=model, results=results)
+    package_id = _save_content_package(request, model, results)
+    return _get_content_package_by_id(package_id)
+
+
+def _package_title(request: ContentPackageRequest) -> str:
+    return request.project_name or request.product_name or "New content package"
+
+
+def _language_label(output_language: str) -> str:
+    return "Türkçe" if output_language == "tr" else "English"
+
+
+def _form_from_package(row: dict) -> dict:
+    try:
+        selected_outputs = json.loads(row["selected_outputs"] or "[]")
+    except (TypeError, ValueError):
+        selected_outputs = []
+
+    return {
+        "projectName": row["project_name"] or "",
+        "productName": row["product_name"] or "",
+        "description": row["description"] or "",
+        "audience": row["audience"] or "",
+        "tone": row["tone"],
+        "goal": row["goal"],
+        "contentLength": row["content_length"],
+        "language": _language_label(row["output_language"]),
+        "selectedOutputs": selected_outputs,
+    }
+
+
+def _format_content_package(row: dict, results: list[dict]) -> dict:
+    return {
+        "id": str(row["id"]),
+        "createdAt": row["created_at"].isoformat() if row.get("created_at") else None,
+        "title": row["title"],
+        "productName": row["product_name"],
+        "form": _form_from_package(row),
+        "model": row["model"],
+        "results": [
+            {
+                "id": result["output_id"],
+                "content": result["content"],
+            }
+            for result in results
+        ],
+    }
+
+
+def _save_content_package(
+    request: ContentPackageRequest,
+    model: str,
+    results: list[ContentResult],
+) -> int:
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            """
+            INSERT INTO content_packages
+            (title, project_name, product_name, description, audience, tone, goal,
+             output_language, content_length, selected_outputs, model)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                _package_title(request),
+                request.project_name,
+                request.product_name,
+                request.description,
+                request.audience,
+                request.tone,
+                request.goal,
+                request.output_language,
+                request.content_length,
+                json.dumps(request.selected_outputs, ensure_ascii=False),
+                model,
+            ),
+        )
+        package_id = cursor.lastrowid
+
+        cursor.executemany(
+            """
+            INSERT INTO content_package_results
+            (package_id, output_id, content, sort_order)
+            VALUES (%s, %s, %s, %s)
+            """,
+            [
+                (package_id, result.id, result.content, index)
+                for index, result in enumerate(results)
+            ],
+        )
+        conn.commit()
+        return package_id
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def _get_content_package_by_id(package_id: int) -> dict:
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM content_packages WHERE id = %s", (package_id,))
+        package = cursor.fetchone()
+        if not package:
+            raise HTTPException(status_code=404, detail="Content package not found")
+
+        cursor.execute(
+            """
+            SELECT output_id, content
+            FROM content_package_results
+            WHERE package_id = %s
+            ORDER BY sort_order ASC, id ASC
+            """,
+            (package_id,),
+        )
+        results = cursor.fetchall()
+        return _format_content_package(package, results)
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_content_packages() -> list[dict]:
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM content_packages ORDER BY created_at DESC, id DESC")
+        packages = cursor.fetchall()
+        if not packages:
+            return []
+
+        package_ids = [package["id"] for package in packages]
+        placeholders = ", ".join(["%s"] * len(package_ids))
+        cursor.execute(
+            f"""
+            SELECT package_id, output_id, content
+            FROM content_package_results
+            WHERE package_id IN ({placeholders})
+            ORDER BY sort_order ASC, id ASC
+            """,
+            tuple(package_ids),
+        )
+
+        results_by_package = {package_id: [] for package_id in package_ids}
+        for result in cursor.fetchall():
+            results_by_package[result["package_id"]].append(result)
+
+        return [
+            _format_content_package(package, results_by_package[package["id"]])
+            for package in packages
+        ]
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def delete_content_package(package_id: int) -> dict:
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id FROM content_packages WHERE id = %s", (package_id,))
+        if not cursor.fetchone():
+            raise HTTPException(status_code=404, detail="Content package not found")
+
+        cursor.execute("DELETE FROM content_packages WHERE id = %s", (package_id,))
+        conn.commit()
+        return {"message": "Content package deleted successfully"}
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception as error:
+        conn.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Content package deletion failed: {error}",
+        ) from error
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def update_content_package_result(package_id: int, output_id: str, content: str) -> dict:
+    if output_id not in CONTENT_FIELDS:
+        raise HTTPException(status_code=422, detail="Invalid content output.")
+
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            """
+            SELECT id
+            FROM content_package_results
+            WHERE package_id = %s AND output_id = %s
+            """,
+            (package_id, output_id),
+        )
+        if not cursor.fetchone():
+            raise HTTPException(status_code=404, detail="Content output not found")
+
+        cursor.execute(
+            """
+            UPDATE content_package_results
+            SET content = %s
+            WHERE package_id = %s AND output_id = %s
+            """,
+            (content, package_id, output_id),
+        )
+        conn.commit()
+        return {"message": "Content output updated successfully"}
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception as error:
+        conn.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Content output update failed: {error}",
+        ) from error
+    finally:
+        cursor.close()
+        conn.close()
