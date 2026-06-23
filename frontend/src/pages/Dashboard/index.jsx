@@ -49,14 +49,6 @@ function Dashboard() {
 
     event.currentTarget.style.setProperty("--parallax-x", `${x * 12}px`);
     event.currentTarget.style.setProperty("--parallax-y", `${y * 10}px`);
-    event.currentTarget.style.setProperty(
-      "--pointer-x",
-      `${event.clientX - bounds.left}px`
-    );
-    event.currentTarget.style.setProperty(
-      "--pointer-y",
-      `${event.clientY - bounds.top}px`
-    );
   };
 
   return (

@@ -30,8 +30,7 @@ function ContentPackageHistory() {
         delete: "Sil",
         cancel: "Vazgeç",
         deleteTitle: "Bu içerik paketi silinsin mi?",
-        deleteMessage:
-          "Bu paket yalnızca bu cihazdaki geçmişten kaldırılır. Üretilen metinleri tekrar görmek için yeniden oluşturman gerekir.",
+        deleteMessage: "Bu paket geçmişten kaldırılacak.",
         totalPackages: "Kayıtlı paket",
         latestPackage: "Son paket",
         noDate: "Tarih yok",
@@ -56,8 +55,7 @@ function ContentPackageHistory() {
         delete: "Delete",
         cancel: "Cancel",
         deleteTitle: "Delete this content package?",
-        deleteMessage:
-          "This removes the package from the history on this device. You will need to generate it again to see the same copy.",
+        deleteMessage: "This package will be removed from your history.",
         totalPackages: "Saved packages",
         latestPackage: "Latest package",
         noDate: "No date",
