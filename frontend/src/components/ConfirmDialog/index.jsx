@@ -24,7 +24,7 @@ function ConfirmDialog({
         </div>
         <div className="confirm-dialog-copy">
           <h2 id="confirm-dialog-title">{title}</h2>
-          <p>{message}</p>
+          {message && <p>{message}</p>}
         </div>
 
         {error && <div className="confirm-dialog-error">{error}</div>}

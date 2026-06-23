@@ -23,7 +23,6 @@ function ContentPackageHistory() {
         delete: "Sil",
         cancel: "Vazgeç",
         deleteTitle: "Bu içerik paketi silinsin mi?",
-        deleteMessage: "Bu paket geçmişten kaldırılacak.",
         totalPackages: "Kayıtlı paket",
         latestPackage: "Son paket",
         noDate: "Tarih yok",
@@ -48,7 +47,6 @@ function ContentPackageHistory() {
         delete: "Delete",
         cancel: "Cancel",
         deleteTitle: "Delete this content package?",
-        deleteMessage: "This package will be removed from your history.",
         totalPackages: "Saved packages",
         latestPackage: "Latest package",
         noDate: "No date",
@@ -304,7 +302,6 @@ function ContentPackageHistory() {
       {pendingDelete && (
         <ConfirmDialog
           title={text.deleteTitle}
-          message={text.deleteMessage}
           confirmLabel={text.delete}
           cancelLabel={text.cancel}
           onConfirm={() => deleteItem(pendingDelete.id)}
