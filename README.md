@@ -51,6 +51,13 @@ Add screenshots to docs/assets and replace the line above, for example:
 - AI Services: Gemini API, Hugging Face Inference
 - Local AI: Ollama, Qwen
 
+## Database Overview
+
+Tasvir stores Image Studio and Content Studio data in MySQL. The ER diagram
+below is an example created with DBeaver.
+
+![Tasvir MySQL ER diagram in DBeaver](docs/assets/database-er-diagram.png)
+
 ## Learning Resources
 
 Tasvir can also be used as a practical learning project. These official
