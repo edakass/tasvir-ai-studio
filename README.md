@@ -17,6 +17,7 @@ generated files and database records on their own computer.
 - Content Studio interface for captions, stories, ad headlines, product copy,
   hashtags, CTA text, and carousel outlines
 - Local Content Studio generation through Ollama and Qwen
+- Recent content packages with search, copy, TXT download, and PDF export
 - Image Studio with Gemini-assisted prompt creation
 - Text-to-image generation through Hugging Face
 - Categories, projects, favorites, archives, downloads, and deletion
@@ -25,23 +26,31 @@ generated files and database records on their own computer.
 
 ## Demo
 
-### Video
-
-Demo video: _Coming soon_
-
-<!-- Replace the line above with your YouTube or social media video link. -->
-
 ### Screenshots
 
-Project screenshots: _Coming soon_
-
-<!--
-Add screenshots to docs/assets and replace the line above, for example:
+#### Home
 
 ![Tasvir home page](docs/assets/tasvir-home.png)
-![Tasvir Content Studio](docs/assets/content-studio.png)
-![Tasvir Image Studio](docs/assets/image-studio.png)
--->
+
+#### Content Studio
+
+![Tasvir Content Studio form](docs/assets/tasvir-content-studio.png)
+
+![Tasvir recent content packages](docs/assets/tasvir-recent-packages.png)
+
+![Tasvir generated content package](docs/assets/tasvir-content-results.png)
+
+PDF export preview from a generated content package:
+
+![Tasvir PDF export preview](docs/assets/tasvir-pdf-export.png)
+
+#### Image Studio
+
+![Tasvir Image Studio categories](docs/assets/tasvir-image-categories.png)
+
+![Tasvir paragliding image results](docs/assets/tasvir-image-results-paragliding.png)
+
+![Tasvir product image results](docs/assets/tasvir-image-results-door.png)
 
 ## Technology
 
@@ -135,7 +144,13 @@ Swagger UI lists the category, project, content generation, prompt generation,
 and image generation endpoints. You can inspect request and response schemas
 and use **Try it out** to test API requests from the browser.
 
-![Tasvir FastAPI Swagger documentation](docs/assets/fastapi-swagger.jpg)
+Categories and Content Studio endpoints:
+
+![Tasvir Swagger categories and content endpoints](docs/assets/swagger-categories-content.png)
+
+Projects and Image Studio generation endpoints:
+
+![Tasvir Swagger projects and generate endpoints](docs/assets/swagger-projects-generate.png)
 
 ## Setup Guides
 
