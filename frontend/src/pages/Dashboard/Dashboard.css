@@ -1,8 +1,8 @@
 .studio-landing {
   position: relative;
-  width: min(1320px, 100%);
-  margin: 0 auto;
-  padding: 54px 38px 80px;
+  width: 100%;
+  min-height: calc(100vh - 72px);
+  padding: 54px clamp(38px, 8vw, 112px) 80px;
   overflow: clip;
 }
 
@@ -184,7 +184,7 @@
 
 .studio-strip {
   overflow: hidden;
-  margin: 16px -38px 0;
+  margin: 16px calc(clamp(38px, 8vw, 112px) * -1) 0;
   border-block: 1px solid rgba(148, 163, 184, 0.08);
   mask-image: linear-gradient(to right, transparent, black 9%, black 91%, transparent);
 }
