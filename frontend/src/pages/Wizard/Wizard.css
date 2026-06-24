@@ -205,6 +205,29 @@
   display: block;
 }
 
+.form-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.form-meta .form-hint {
+  margin-top: 0;
+}
+
+.char-count {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: var(--font-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.char-count.near-limit {
+  color: var(--danger);
+}
+
 .options-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

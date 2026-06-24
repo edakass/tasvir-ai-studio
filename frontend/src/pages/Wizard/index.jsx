@@ -117,6 +117,7 @@ function Wizard() {
       setStep(resultStep);
     } catch (err) {
       console.error(err);
+      const detail = err?.response?.data?.detail;
       if (createdProjectId) {
         try {
           await deleteProject(createdProjectId);
@@ -126,9 +127,10 @@ function Wizard() {
         }
       }
       setGenerationError(
-        isTurkish
+        detail ||
+          (isTurkish
           ? "Görsel üretilemedi. Bağlantını ve API ayarlarını kontrol edip promptu değiştirerek tekrar dene."
-          : "The visual could not be generated. Check your connection and API settings, then adjust the prompt and try again."
+          : "The visual could not be generated. Check your connection and API settings, then adjust the prompt and try again.")
       );
       setStep(promptStep);
     } finally {

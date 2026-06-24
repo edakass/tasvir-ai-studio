@@ -1,7 +1,13 @@
 import { useLanguage } from "../../../context/language";
 
+const EXTRAS_MAX_LENGTH = 2000;
+
 function StepExtras({ data, update }) {
   const { isTurkish } = useLanguage();
+  const extrasValue = data.extras.join(", ");
+  const extrasLength = extrasValue.length;
+  const isNearLimit = extrasLength >= EXTRAS_MAX_LENGTH * 0.9;
+
   return (
     <div className="step-container">
       <div className="step-title-row">
@@ -18,13 +24,23 @@ function StepExtras({ data, update }) {
               ? "Örn. Bitkiler, sıcak ışık ve ahşap zemin ekle..."
               : "e.g. Add plants, warm lighting, wooden floor, no text or logos..."
           }
-          value={data.extras.join(", ")}
+          value={extrasValue}
           onChange={(e) =>
             update({ extras: e.target.value ? [e.target.value] : [] })
           }
-          maxLength={2000}
+          maxLength={EXTRAS_MAX_LENGTH}
           rows={5}
         />
+        <div className="form-meta">
+          <span className="form-hint">
+            {isTurkish
+              ? "Detayları burada kısa ve net tutabilirsin"
+              : "Keep extra details short and specific"}
+          </span>
+          <span className={`char-count ${isNearLimit ? "near-limit" : ""}`}>
+            {extrasLength}/{EXTRAS_MAX_LENGTH}
+          </span>
+        </div>
       </div>
     </div>
   );
