@@ -169,6 +169,16 @@ def generate_image_with_hf(prompt: str, output_size: tuple[int, int]) -> str:
             detail="Image service is temporarily unavailable."
         ) from error
 
+    if response.status_code == 402:
+        logger.error("Hugging Face credits are depleted: %s", response.text[:500])
+        raise HTTPException(
+            status_code=402,
+            detail=(
+                "Hugging Face image credits are depleted. Add credits, upgrade the "
+                "account, or configure another image provider."
+            ),
+        )
+
     if response.status_code != 200:
         logger.error(
             "Hugging Face generation failed with status %s: %s",

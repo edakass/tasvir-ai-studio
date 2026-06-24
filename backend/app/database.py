@@ -129,6 +129,9 @@ def init_db():
     if "subject" not in project_columns:
         cursor.execute("ALTER TABLE projects ADD COLUMN subject TEXT AFTER name")
 
+    if "style" in project_columns:
+        cursor.execute("ALTER TABLE projects MODIFY COLUMN style VARCHAR(500)")
+
     if "original_image" in project_columns:
         cursor.execute("ALTER TABLE projects DROP COLUMN original_image")
 
