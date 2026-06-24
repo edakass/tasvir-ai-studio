@@ -170,6 +170,12 @@ Project changes and planned work are listed in
 Contribution setup, development guidelines, and pull request expectations are
 available in [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Commit Style
+
+Commit messages follow the
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+format where possible.
+
 ## Security
 
 Never commit `.env` files or share API keys in screenshots, issues, or commits.
