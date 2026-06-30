@@ -67,6 +67,13 @@ below is an example created with DBeaver.
 
 ![Tasvir MySQL ER diagram in DBeaver](docs/assets/database-er-diagram.png)
 
+## Writing
+
+Turkish articles I wrote about Tasvir AI Studio:
+
+- [Tasvir AI Studio: Nasıl Ortaya Çıktı, Ne Yapıyor ve Nasıl Çalışıyor?](https://medium.com/@edakas/tasvir-ai-studio-nas%C4%B1l-ortaya-%C3%A7%C4%B1kt%C4%B1-ne-yap%C4%B1yor-ve-nas%C4%B1l-%C3%A7al%C4%B1%C5%9F%C4%B1yor-f922e629706f)
+- [Tasvir AI Studio: Projenin Frontend, Backend ve AI Mimarisi](https://medium.com/@edakas/tasvir-ai-studio-projenin-frontend-backend-ve-ai-mimarisi-62d472aca085)
+
 ## Learning Resources
 
 Tasvir can also be used as a practical learning project. These official
